@@ -1,23 +1,29 @@
 from instagrapi import Client
-# from agente01 import generate_description
-# from salvandoimagem import imagem
 
+class User_instagram:
+    def __init__(self, user, password):
+        self.user = user
+        self.password = password
+        
+    
+    def post_Image(self, imagePath, description):
+        self.imagePath = imagePath
+        self.description = description       
+        # Credenciais do Instagram
+        USERNAME = self.user
+        PASSWORD = self.password
 
-# Credenciais do Instagram
-USERNAME = "new_news135"
-PASSWORD = "news3504"
+        # Caminho da imagem e legenda
+        IMAGE_PATH = self.imagePath
+        CAPTION =  self.description
 
-# Caminho da imagem e legenda
-IMAGE_PATH = 'descoberta_dinossauro_novosensis.png'
-CAPTION = 'Nova descoberta de DINO!!!'
+        # Inicializa o cliente do Instagram
+        cl = Client()
 
-# Inicializa o cliente do Instagram
-cl = Client()
+        # Login no Instagram
+        cl.login(USERNAME, PASSWORD)
 
-# Login no Instagram
-cl.login(USERNAME, PASSWORD)
+        # Posta a imagem no feed
+        media = cl.photo_upload(IMAGE_PATH, CAPTION)
 
-# Posta a imagem no feed
-media = cl.photo_upload(IMAGE_PATH, CAPTION)
-
-print(f"Postagem feita com sucesso! ID: {media.dict()['id']}")
+        print(f"Postagem feita com sucesso! ID: {media.dict()['id']}")
