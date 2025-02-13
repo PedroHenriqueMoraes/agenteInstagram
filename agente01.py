@@ -36,7 +36,7 @@ class CrewAgents:
             backstory='''You are a veteran social media analyst with extensive experience in 
             tracking viral content. You use advanced analytics tools to monitor engagement 
             rates, share counts, and discussion volume across platforms''',
-            # tools=[self.tool]
+            #tools=[self.tool]
         )
 
         # Hashtag Analysis Agent
@@ -47,7 +47,7 @@ class CrewAgents:
             patterns and measuring their impact''',
             backstory='''You have developed sophisticated methods for tracking hashtag 
             performance and understanding their relationship to news virality''',
-            # tools=[self.tool]
+            #tools=[self.tool]
         )
 
         # Viral Content Selection Agent
@@ -58,7 +58,7 @@ class CrewAgents:
             most significant and engaging story''',
             backstory='''You have years of experience in content curation and understand what 
             makes a story truly viral and meaningful''',
-            # tools=[self.tool]
+            #tools=[self.tool]
         )
 
         # Story Update Tracker
@@ -69,7 +69,7 @@ class CrewAgents:
             the selected viral story from the previous day''',
             backstory='''You are meticulous in tracking news developments and have expertise 
             in finding verified updates from reliable sources''',
-            # tools=[self.tool]
+            #tools=[self.tool]
         )
 
         # News Creation Specialist
@@ -80,7 +80,7 @@ class CrewAgents:
             incorporate all relevant information and updates''',
             backstory='''You have extensive journalism experience and excel at crafting 
             compelling narratives while maintaining journalistic integrity''',
-            # tools=[self.tool]
+            tools=[self.tool]
         )
 
         self.description_agent = Agent(
@@ -192,8 +192,7 @@ class CrewAgents:
             ''',
             agent=self.news_writer,
             context=[self.select_top_story, self.track_updates],
-            output_file= 'notícia.md'
-            
+            output_file= 'noticia.md'
         )
 
 
@@ -201,7 +200,7 @@ class CrewAgents:
             description='''
             você cria um prompt para gerar uma imagem de acordo com a notícia''',
             expected_output= '''
-            voce deve criar um prompt bem elaborado para uma IA que gera imagem, esse prompt tem que ter relação com a notícia''',
+            voce deve criar um prompt de imagens ultra realista para uma IA que gera imagem, esse prompt tem que ter relação com a notícia e nunca violar as diretrizes da openai, não site nome de politicos ou pessoas reais''',
             agent = self.search_photos_agent,
             context= [self.create_article],
             output_pydantic= Image_output
@@ -266,7 +265,6 @@ class CrewAgents:
 
         # Execute the crew
         result = self.crew.kickoff()
-
 #---------------------------------------------OBJECTS-PYDANTIC--------------------------------------
 
     def formatted_output(self):

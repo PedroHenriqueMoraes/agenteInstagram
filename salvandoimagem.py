@@ -22,9 +22,9 @@ class Image:
         self.prompt = promptImg
         self.imagemUrl = ''
         response = self.client.images.generate(
-            model="dall-e-2",
+            model="dall-e-3",
             prompt= self.prompt,
-            size="512x512",
+            size="1024x1024",
             quality="standard",
             n=1,
         )

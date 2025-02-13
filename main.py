@@ -1,27 +1,13 @@
 import re
+
+import schedule
 from agente01 import CrewAgents
 from salvandoimagem import Image
 from postagemIG import User_instagram
 import os
 from dotenv import load_dotenv
+import time
 load_dotenv()
-
-chaveApi = os.getenv('OPENAI_API_KEY')
-senha_IG = os.getenv('SENHA_IG')
-
-equipe = CrewAgents()
-equipe._initialize_agents()
-equipe._initialize_taks()
-equipe.createCrew()
-
-#pegando as saidas
-saida = equipe.formatted_output()
-
-print('este é o prompt: ', saida['prompt'])
-print()
-print('este é o nome do arquivo: ',saida['nome_arquivo'])
-print()
-print('este é a descrição: ',saida['descricao'])
 
 def limpar_nome_arquivo(nome):
     # Lista de extensões comuns para remover
@@ -41,18 +27,47 @@ def limpar_nome_arquivo(nome):
     
     return nome
 
-nomeImagemCorrigido = limpar_nome_arquivo(nome= saida['nome_arquivo'])
+def job():
+    chaveApi = os.getenv('OPENAI_API_KEY')
+    senha_IG = os.getenv('SENHA_IG')
 
 
-#savando imagem
-imagemSalva = Image(apiKey= chaveApi)
-imagemSalva.creat_image(promptImg = saida['prompt'])
-caminhoImagem = imagemSalva.save_image(nameImage = nomeImagemCorrigido )
+    #pegando as saidas
+    equipe = CrewAgents()
+    equipe._initialize_agents()
+    equipe._initialize_taks()
+    equipe.createCrew()
+    saida = equipe.formatted_output()
+    print('este é o prompt: ', saida['prompt'])
+    print('este é o nome do arquivo: ',saida['nome_arquivo'])
+    print('este é a descrição: ',saida['descricao'])
+
+    nomeImagemCorrigido = limpar_nome_arquivo(nome= saida['nome_arquivo'])
+    #savando imagem
+    imagemSalva = Image(apiKey= os.getenv('OPENAI_API_KEY'))
+    imagemSalva.creat_image(promptImg = saida['prompt'])
+    caminhoImagem = imagemSalva.save_image(nameImage = nomeImagemCorrigido )
 
 
+    #criando usuario e postando
+    postInstagram = User_instagram(
+        user= 'noticiadehoje135', 
+        password = os.getenv('SENHA_IG'))
+    
+    postInstagram.post_Image(
+        imagePath= caminhoImagem, 
+        description = saida['descricao'])
 
-#criando usuario e postando
-usuario = 'noticiadehoje135'
-senha = senha_IG
-postInstagram = User_instagram(user= usuario, password = senha)
-postInstagram.post_Image(imagePath= caminhoImagem, description = saida['descricao'])
+def main():
+    print("Iniciando o programa...")
+    
+    schedule.every().hour('12:00').do(job)
+    job()
+    
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+if __name__ == "__main__":
+    main()
+
