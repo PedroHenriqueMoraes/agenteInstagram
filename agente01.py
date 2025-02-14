@@ -7,6 +7,10 @@ from pydantic import BaseModel
 
 load_dotenv()
 
+llm = LLM(
+    model= 'gpt-3.5-turbo'
+)
+
 
 class Image_output(BaseModel):
     prompt : str
@@ -37,6 +41,7 @@ class CrewAgents:
             tracking viral content. You use advanced analytics tools to monitor engagement 
             rates, share counts, and discussion volume across platforms''',
             #tools=[self.tool]
+            llm= llm
         )
 
         # Hashtag Analysis Agent
@@ -48,6 +53,7 @@ class CrewAgents:
             backstory='''You have developed sophisticated methods for tracking hashtag 
             performance and understanding their relationship to news virality''',
             #tools=[self.tool]
+            llm= llm
         )
 
         # Viral Content Selection Agent
@@ -59,6 +65,7 @@ class CrewAgents:
             backstory='''You have years of experience in content curation and understand what 
             makes a story truly viral and meaningful''',
             #tools=[self.tool]
+            llm= llm
         )
 
         # Story Update Tracker
@@ -70,6 +77,7 @@ class CrewAgents:
             backstory='''You are meticulous in tracking news developments and have expertise 
             in finding verified updates from reliable sources''',
             #tools=[self.tool]
+            llm= llm
         )
 
         # News Creation Specialist
@@ -80,20 +88,23 @@ class CrewAgents:
             incorporate all relevant information and updates''',
             backstory='''You have extensive journalism experience and excel at crafting 
             compelling narratives while maintaining journalistic integrity''',
-            tools=[self.tool]
+            tools=[self.tool],
+            llm= llm
         )
 
         self.description_agent = Agent(
             role= '''Você é um social media no instagram de uma página de notícias, seu papel é fonercer as melhores descrições para o instagram''',
             goal= '''seu obijetivo é tornar notícias em uma descrição amigavel no instagram''',
-            backstory= '''voce faz parte de uma agencia de social media e esta operando uma conta de notícia no instagram'''
+            backstory= '''voce faz parte de uma agencia de social media e esta operando uma conta de notícia no instagram''',
+            llm= llm
         )
 
         self.search_photos_agent = Agent(
             role='''vocé é um engenheiro de prompt de geração de imagens''',
             goal= '''seu objetivo é criar prompts resumidos de imagem''',
             backstory='''voce faz parte de uma agencia de social media e esta operando uma conta de notícia no instagram''',
-            tools= [self.tool]
+            tools= [self.tool],
+            llm= llm
         )
 
 #------------------------------------------TASKS----------------------------------------------------
