@@ -1,5 +1,4 @@
 import re
-
 import schedule
 from agente01 import CrewAgents
 from salvandoimagem import Image
@@ -61,12 +60,12 @@ def job():
 def main():
     print("Iniciando o programa...")
     
-    schedule.every().hour('12:00').do(job)
+    # schedule.every().day.at("12:00").do(job)
     job()
     
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    # while True:
+    #     schedule.run_pending()
+    #     time.sleep(1)
 
 if __name__ == "__main__":
     main()

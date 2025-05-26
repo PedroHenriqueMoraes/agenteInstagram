@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jornal Vintage</title>
+    <style>
+        /* Estilo Vintage */
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #f8f4e5;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            border-bottom: 3px double #000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        
+        .jornal-titulo {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 0;
+            letter-spacing: -1px;
+            font-family: 'Old English Text MT', 'Times New Roman', serif;
+        }
+        
+        .jornal-data {
+            font-style: italic;
+            margin: 10px 0;
+        }
+        
+        .jornal-slogan {
+            font-size: 1rem;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .manchete {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .manchete-titulo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+        
+        .manchete-subtitulo {
+            font-size: 1.4rem;
+            font-style: italic;
+            margin-bottom: 25px;
+        }
+        
+        .coluna {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .coluna-principal {
+            flex: 2;
+        }
+        
+        .coluna-lateral {
+            flex: 1;
+            border-left: 1px solid #ccc;
+            padding-left: 30px;
+        }
+        
+        .texto-principal {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: justify;
+            column-count: 2;
+            column-gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .secao {
+            margin-bottom: 30px;
+        }
+        
+        .secao-titulo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .secao-conteudo {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            text-align: justify;
+        }
+        
+        .trending-headlines {
+            font-size: 1rem;
+            line-height: 1.4;
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .trending-headlines li {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dotted #ccc;
+        }
+        
+        .botao-atualizar {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #f8f4e5;
+            border: none;
+            cursor: pointer;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1rem;
+        }
+        
+        .botao-atualizar:hover {
+            background-color: #555;
+        }
+        
+        @media (max-width: 768px) {
+            .coluna {
+                flex-direction: column;
+            }
+            
+            .coluna-lateral {
+                border-left: none;
+                border-top: 1px solid #ccc;
+                padding-left: 0;
+                padding-top: 20px;
+            }
+            
+            .texto-principal {
+                column-count: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="jornal-titulo">O Informante</h1>
+        <p class="jornal-data" id="data-atual">27 de Fevereiro de 2025</p>
+        <p class="jornal-slogan">"Trazendo as notícias para o mundo"</p>
+    </header>
+    
+    <main id="conteudo-principal">
+        <!-- O conteúdo da notícia será inserido aqui dinamicamente -->
+        <div class="carregando">Carregando notícia mais recente...</div>
+    </main>
+    
+    <button class="botao-atualizar" id="atualizar-noticia">Atualizar Notícia</button>
+    
+    <script>
+        // Configuração inicial
+        const conteudoPrincipal = document.getElementById('conteudo-principal');
+        const botaoAtualizar = document.getElementById('atualizar-noticia');
+        const dataAtual = document.getElementById('data-atual');
+        
+        // Formatar a data atual
+        const hoje = new Date();
+        const opcoes = { day: 'numeric', month: 'long', year: 'numeric' };
+        dataAtual.textContent = hoje.toLocaleDateString('pt-BR', opcoes);
+        
+        // Função para exibir a notícia
+        function exibirNoticia(noticia) {
+            // Criar o conteúdo HTML para a notícia
+            let conteudoHTML = `
+                <div class="manchete">
+                    <h2 class="manchete-titulo">${noticia.Headline}</h2>
+                    <p class="manchete-subtitulo">${noticia.Subheadline}</p>
+                </div>
+                
+                <div class="texto-principal">
+                    ${noticia.Main_Story_Content}
+                </div>
+                
+                <div class="coluna">
+                    <div class="coluna-principal">
+                        <div class="secao">
+                            <h3 class="secao-titulo">Atualizações e Desenvolvimentos</h3>
+                            <div class="secao-conteudo">
+                                ${noticia.Latest_Updates_and_Developments}
+                            </div>
+                        </div>
+                        
+                        <div class="secao">
+                            <h3 class="secao-titulo">Análise de Especialistas</h3>
+                            <div class="secao-conteudo">
+                                ${noticia.Expert_Quotes_and_Analysis}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="coluna-lateral">
+                        <div class="secao">
+                            <h3 class="secao-titulo">Impacto nas Redes Sociais</h3>
+                            <div class="secao-conteudo">
+                                ${noticia.Social_Media_Context_and_Impact}
+                            </div>
+                        </div>
+                        
+                        <div class="secao">
+                            <h3 class="secao-titulo">Manchetes em Alta</h3>
+                            <ul class="trending-headlines">
+                                ${noticia.Trending_News_Headlines.map(headline => `<li>${headline}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Atualizar o conteúdo da página
+            conteudoPrincipal.innerHTML = conteudoHTML;
+        }
+        
+        // Função para carregar a notícia do arquivo JSON
+        function carregarNoticia() {
+            // Mostrar feedback de carregamento
+            conteudoPrincipal.innerHTML = '<div class="carregando">Carregando notícia mais recente...</div>';
+            
+            // Carregar o arquivo noticia.json
+            fetch('noticia.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Não foi possível carregar o arquivo de notícias');
+                    }
+                    return response.json();
+                })
+                .then(noticia => {
+                    // Exibir a notícia
+                    exibirNoticia(noticia);
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar notícia:', error);
+                    conteudoPrincipal.innerHTML = `<p>Erro ao carregar notícia: ${error.message}</p>`;
+                });
+        }
+        
+        // Adicionar evento ao botão para atualizar notícia
+        botaoAtualizar.addEventListener('click', carregarNoticia);
+        
+        // Carregar notícia ao iniciar a página
+        document.addEventListener('DOMContentLoaded', carregarNoticia);
+    </script>
+</body>
+</html>

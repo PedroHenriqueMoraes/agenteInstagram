@@ -3,7 +3,6 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import wget
-
 load_dotenv()
  
 
@@ -20,12 +19,10 @@ class Image:
      
     def creat_image(self, promptImg):
         self.prompt = promptImg
-        self.imagemUrl = ''
         response = self.client.images.generate(
             model="dall-e-3",
             prompt= self.prompt,
             size="1024x1024",
-            quality="standard",
             n=1,
         )
         print(response.data[0].url)

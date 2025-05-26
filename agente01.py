@@ -1,3 +1,7 @@
+import re
+import shutil
+import json
+from typing import List
 from crewai import LLM, Agent, Task, Crew
 import os
 from crewai_tools import SerperDevTool
@@ -18,6 +22,14 @@ class Nome_arquivo(BaseModel):
     nome_img : str
 class Descricao_instagram(BaseModel):
     descricao_post : str
+class DescricaoNoticiaModelo(BaseModel):  
+    Headline: str
+    Subheadline: str
+    Main_Story_Content: str
+    Latest_Updates_and_Developments: str
+    Social_Media_Context_and_Impact: str
+    Expert_Quotes_and_Analysis: str
+    Trending_News_Headlines: List[str]
 
 class CrewAgents:
     def __init__(self):
@@ -35,12 +47,13 @@ class CrewAgents:
         self.viral_news_analyst = Agent(
             role='''You are an expert social media analyst specializing in tracking viral news across 
             multiple platforms including Twitter, LinkedIn, Facebook, and Reddit''',
-            goal=f'''Identify the most viral news stories from the previous day {self.yesterday_str} across all major 
+            goal=f'''"Pesquise notícias reais e verificadas sobre os eventos mais relevantes e virais do dia anterior, utilizando apenas fontes confiáveis como BBC, Reuters, CNN, G1, Estadão, Folha de São Paulo, The Guardian, Vatican News ou agências de notícias oficiais. Ignore conteúdos de blogs, redes sociais ou sites de notícias não verificadas. Foque em eventos confirmados, com testemunhos oficiais, cobertura da imprensa tradicional e fatos verificados por agências de checagem."
+ 
             social media platforms, focusing on engagement metrics and reach''',
             backstory='''You are a veteran social media analyst with extensive experience in 
             tracking viral content. You use advanced analytics tools to monitor engagement 
             rates, share counts, and discussion volume across platforms''',
-            #tools=[self.tool]
+            tools=[self.tool],
             llm= llm
         )
 
@@ -52,7 +65,7 @@ class CrewAgents:
             patterns and measuring their impact''',
             backstory='''You have developed sophisticated methods for tracking hashtag 
             performance and understanding their relationship to news virality''',
-            #tools=[self.tool]
+            #tools=[self.tool],
             llm= llm
         )
 
@@ -200,10 +213,28 @@ class CrewAgents:
             4. Social media context and impact
             5. Expert quotes and analysis
             6. At the end, create a section citing headlines from three current trending news stories
+            7. retorne a noticia em formato json
+
+            SEMPRE RETORNE NESSE MODELO DE EXEMPLO:
+                {
+  "Headline": "Descoberta de Potencial Cura para Doença Rara Gera Esperança Global",
+  "Subheadline": "A relevância dessa descoberta para a saúde pública global e as reações impactantes nas redes sociais",
+  "Main_Story_Content": "Uma descoberta recente ofereceu esperança para milhões de pessoas em todo o mundo, com a identificação de uma potencial cura para uma doença rara. O avanço promissor promete aliviar o sofrimento de pacientes que enfrentam essa condição debilitante e sem tratamento adequado. Especialistas apontam para a significância desse marco na área da saúde como um passo crucial em direção a terapias inovadoras para condições de difícil tratamento.",
+  "Latest_Updates_and_Developments": "Atualizações recentes sobre a pesquisa indicam avanços promissores na eficácia do tratamento proposto, com testes iniciais mostrando resultados encorajadores. As instituições de saúde estão acompanhando de perto os desenvolvimentos, com investimentos significativos sendo direcionados para a continuidade das pesquisas e a possibilidade de disponibilizar a potencial cura de forma mais ampla.",
+  "Social_Media_Context_and_Impact": "Nas redes sociais, a notícia da potencial cura gerou uma onda de esperança e otimismo, refletida nos milhões de engajamentos, compartilhamentos e comentários. Usuários de todo o mundo expressaram solidariedade e gratidão pela possibilidade de uma solução para uma doença tão desafiadora. As hashtags #CuraDoençaRara, #SaúdeGlobal, #DescobertaMédica e #EsperançaParaTodos dominaram as tendências, evidenciando o impacto positivo dessa descoberta.",
+  "Expert_Quotes_and_Analysis": "Especialistas em saúde enfatizam a importância desse avanço na abordagem de doenças raras e destacam a necessidade de investimentos contínuos em pesquisas e desenvolvimento de tratamentos inovadores. A comunidade médica está otimista quanto ao potencial impacto transformador dessa descoberta e seu papel na melhoria da qualidade de vida dos pacientes afetados.",
+  "Trending_News_Headlines": [
+    "1. Novo Tratamento Revoluciona Combate a Doenças Raras",
+    "2. Avanços Científicos Despertam Esperança na Área da Saúde",
+    "3. Pesquisas Médicas Apontam para Futuro Promissor na Terapia de Doenças Raras"
+  ]
+}
             ''',
             agent=self.news_writer,
             context=[self.select_top_story, self.track_updates],
-            output_file= 'noticia.md'
+            output_file= 'noticia.json',
+            output_json= DescricaoNoticiaModelo
+
         )
 
 
@@ -211,7 +242,7 @@ class CrewAgents:
             description='''
             você cria um prompt para gerar uma imagem de acordo com a notícia''',
             expected_output= '''
-            voce deve criar um prompt de imagens ultra realista para uma IA que gera imagem, esse prompt tem que ter relação com a notícia e nunca violar as diretrizes da openai, não site nome de politicos ou pessoas reais''',
+            voce deve criar um prompt de imagens ultra realista para uma IA que gera imagem, esse prompt tem que ter relação com a notícia e nunca violar as diretrizes da openai, não site nome de politicos ou pessoas reais, não peça para mostrar ser vivos sofrendo ou machucado ou sem vida, nunca pedir para a IA gerar nomes nem numeros. ''',
             agent = self.search_photos_agent,
             context= [self.create_article],
             output_pydantic= Image_output
@@ -283,25 +314,52 @@ class CrewAgents:
         taskOutputPompt = self.search_images_task.output
         taskOutputName = self.criador_de_arquivo.output
         saidaDescricao = self.generate_description.output
-
+        saidaNoticia = self.create_article.output
         #-----------------------------------------------------------------------------------------#
         
         outputPydanticPrompt = taskOutputPompt.pydantic
         outputPydanticName = taskOutputName.pydantic
         pydanticDescricao = saidaDescricao.pydantic
+        pydanticNoticia = saidaNoticia
 
         self.promptImg = outputPydanticPrompt.prompt
         self.nomeArquivo = outputPydanticName.nome_img
         self.descricaoPost = pydanticDescricao.descricao_post
+        self.noticia = pydanticNoticia
 
         return {
             "prompt": self.promptImg,
             "nome_arquivo": self.nomeArquivo,
-            "descricao": self.descricaoPost
+            "descricao": self.descricaoPost,
+            "noticia" : self.noticia
         }
         
 
+#-----------------------executando--------------------------------------------
 
+def limpar_nome_arquivo(nome):
+    # Lista de extensões comuns para remover
+    extensoes = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.img', '.webp']
+    
+    # Converte para minúsculo para fazer a comparação
+    nome = nome.lower()
+    
+    # Remove qualquer extensão da lista
+    for ext in extensoes:
+        if nome.endswith(ext):
+            nome = nome[:-len(ext)]
+    
+    # Remove caracteres especiais e espaços extras
+    nome = re.sub(r'[^\w\s-]', '', nome)
+    nome = re.sub(r'\s+', '_', nome.strip())
+    
+    return nome
 
+equipe = CrewAgents()
+equipe._initialize_agents()
+equipe._initialize_taks()
+equipe.createCrew()
+saida = equipe.formatted_output()
 
+print(saida['noticia'])
 
